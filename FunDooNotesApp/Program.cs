@@ -25,3 +25,8 @@ namespace FundooNotesApp
                 });
     }
 }
+
+/*
+ * System.AggregateException: 'Some services are not able to be constructed (Error while validating the service descriptor 'ServiceType: ExcepionHandling.GlobalExceptionHandlingMiddleware Lifetime: Transient ImplementationType: ExcepionHandling.GlobalExceptionHandlingMiddleware': Unable to resolve service for type 'Microsoft.AspNetCore.Http.RequestDelegate' while attempting to activate 'ExcepionHandling.GlobalExceptionHandlingMiddleware'.)'
+
+ * */

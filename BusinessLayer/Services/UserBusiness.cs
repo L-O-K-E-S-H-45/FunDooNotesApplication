@@ -20,9 +20,7 @@ namespace BusinessLayer.Services
 
         public UserEntity UserRegistration(RegisterModel model)
         {
-
             return userRepo.UserRegistration(model);
-
         }
 
         public string UserLogin(LoginModel model)
@@ -30,9 +28,41 @@ namespace BusinessLayer.Services
             return userRepo.UserLogin(model);
         }
 
-        public bool CheckEmail(string email)
+        public bool CheckUser(string email)
         {
-            return userRepo.CheckEmail(email);
+            return userRepo.CheckUser(email);
         }
+
+        public ForgotPasswordModel ForgetPassword(string email)
+        {
+            return userRepo.ForgetPassword(email);
+        }
+
+        public bool ResetPassword(string email, ResetPasswordModel resetPasswordModel)
+        {
+            return userRepo.ResetPassword(email, resetPasswordModel);
+        }
+
+        //---------------------------------------------------
+        public List<UserEntity> GetAllUsers()
+        {
+            return userRepo.GetAllUsers();
+        }
+
+        public UserEntity GetUserByUserId(int userId)
+        {
+            return userRepo.GetUserByUserId(userId);
+        }
+
+        public List<UserEntity> GetUsersByName(string userName)
+        {
+            return userRepo.GetUsersByName(userName);
+        }
+
+        public UserEntity UpdateUser(int userId, RegisterModel registerModel)
+        {
+            return userRepo.UpdateUser(userId, registerModel);
+        }
+        //---------------------------------------------------
     }
 }
