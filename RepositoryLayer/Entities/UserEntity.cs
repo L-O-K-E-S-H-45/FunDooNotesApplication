@@ -11,7 +11,7 @@ namespace RepositoryLayer.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int UserId { get; private set; }
+        public int UserId { get; set; }
 
         //[Required(ErrorMessage = "{0} is required")]
         //[StringLength(50, MinimumLength = 3, ErrorMessage = "{0} should be between 3 and 50 characters")]

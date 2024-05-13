@@ -10,17 +10,17 @@ namespace FunDooNotesApplication.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ReviewController : ControllerBase
+    public class ReviewsController : ControllerBase
     {
         private readonly IReviewBusiness reviewBusiness;
 
-        public ReviewController(IReviewBusiness reviewBusiness)
+        public ReviewsController(IReviewBusiness reviewBusiness)
         {
             this.reviewBusiness = reviewBusiness;
         }
 
 
-        [HttpPost("review")]
+        [HttpPost("AddReview")]
         public ActionResult AddReview(ReviewModel reviewModel)
         {
             var response = reviewBusiness.AddReview(reviewModel);
@@ -31,7 +31,7 @@ namespace FunDooNotesApplication.Controllers
             
         }
 
-        [HttpGet("reviews")]
+        [HttpGet("")]
         public IActionResult GetAllReviews()
         {
             var response = reviewBusiness.GetAllReviews();
@@ -41,7 +41,7 @@ namespace FunDooNotesApplication.Controllers
                 return BadRequest(new ResponseModel<List<ReviewEntity>> { IsSuccess = false, Message = "Review not found", Data = response });
         }
 
-        [HttpGet("review")]
+        [HttpGet("{reviewId}")]
         public IActionResult GetReviewByReviewId(int reviewId)
         {
             try
@@ -55,7 +55,8 @@ namespace FunDooNotesApplication.Controllers
             }
 
         }
-        [HttpGet("reviewByUsername")]
+
+        [HttpGet("ReviewsByUsername")]
         public IActionResult GetReviewByUserName(string userName)
         {
             try
@@ -83,7 +84,7 @@ namespace FunDooNotesApplication.Controllers
             }
         }
 
-        [HttpDelete("delete")]
+        [HttpDelete("{reviewId}")]
         public IActionResult DeleteByReviewId(int reviewId)
         {
             try

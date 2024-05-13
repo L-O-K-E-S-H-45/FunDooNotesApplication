@@ -23,12 +23,12 @@ namespace RepositoryLayer.Services
     public class UserRepo : IUserRepo
     {
 
-        private readonly FunDooDBContext context;
+        private readonly FunDooDBContext funDooDbContext;
         private readonly IConfiguration config;
         private readonly ILogger<UserRepo> _logger;
-        public UserRepo(FunDooDBContext context, IConfiguration config, ILogger<UserRepo> _logger)
+        public UserRepo(FunDooDBContext funDooDbContext, IConfiguration config, ILogger<UserRepo> _logger)
         {
-            this.context = context;
+            this.funDooDbContext = funDooDbContext;
             this.config = config;
             this._logger = _logger;
         }
@@ -55,7 +55,7 @@ namespace RepositoryLayer.Services
 
         public bool CheckUser(string email)
         {
-            var result = context.Users.Any(user => user.Email == email);
+            var result = funDooDbContext.Users.Any(user => user.Email == email);
             return result;
         }
 
@@ -105,8 +105,8 @@ namespace RepositoryLayer.Services
                 userEntity.CreatedAt = DateTime.Now;
                 userEntity.ChangedAt = DateTime.Now;
 
-                context.Users.Add(userEntity);
-                context.SaveChanges();
+                funDooDbContext.Users.Add(userEntity);
+                funDooDbContext.SaveChanges();
 
                 return userEntity;
             }
@@ -116,7 +116,7 @@ namespace RepositoryLayer.Services
 
         public string UserLogin(LoginModel model)
         {
-            var user = context.Users.FirstOrDefault(user => user.Email == model.Email
+            var user = funDooDbContext.Users.FirstOrDefault(user => user.Email == model.Email
                                             && user.Password == EncodePassword(model.Password));
             if (user != null)
             {
@@ -151,16 +151,16 @@ namespace RepositoryLayer.Services
 
         public UserEntity GetUserByEmail(string email)
         {
-            var userEntity = context.Users.ToList().Find(user => user.Email == email);
+            var userEntity = funDooDbContext.Users.ToList().Find(user => user.Email == email);
             return userEntity;
         }
 
         public ForgotPasswordModel ForgetPassword(string email)
         {
-            //var result = context.Users.FirstOrDefault(user => user.Email == email);
+            //var result = funDooDbContext.Users.FirstOrDefault(user => user.Email == email);
             //return (result != null) ? true : false;
 
-            //UserEntity user = context.Users.ToList().Find(user => user.Email == email);
+            //UserEntity user = funDooDbContext.Users.ToList().Find(user => user.Email == email);
 
             UserEntity user = GetUserByEmail(email);
             if (user != null)
@@ -178,19 +178,63 @@ namespace RepositoryLayer.Services
 
         public bool ResetPassword(string email, ResetPasswordModel resetPasswordModel)
         {
-            //var user = context.Users.FirstOrDefault(user => user.Email == email);
+            //var user = funDooDbContext.Users.FirstOrDefault(user => user.Email == email);
 
             UserEntity user = GetUserByEmail(email);
             if (user != null)
             {
                     user.Password = EncodePassword(resetPasswordModel.Password);
                     user.ChangedAt = DateTime.Now;
-                    context.SaveChanges();
+                    funDooDbContext.SaveChanges();
 
                     return true;
             }
             else
                 throw new Exception("User Not Exist for requested email!!!");
         }
+
+        //---------------------------------------------------------------
+        public List<UserEntity> GetAllUsers()
+        {
+            List<UserEntity> users = funDooDbContext.Users.ToList();
+            
+                return users.Any() ? users : throw new Exception("Users list is empty");
+        }
+
+        public UserEntity GetUserByUserId(int userId)
+        {
+            var userEntity = funDooDbContext.Users.FirstOrDefault(user => user.UserId == userId);
+
+            return (userEntity != null) ? userEntity : throw new Exception("User not found for requested Id: "+ userId);
+        }
+
+        public List<UserEntity> GetUsersByName(string userName)
+        {
+            var users = funDooDbContext.Users.ToList().FindAll(user => user.FirstName == userName);
+
+            return (users.Any()) ? users : throw new Exception("Users not found for requested userName: " + userName);
+        }
+
+        public UserEntity UpdateUser(int userId, RegisterModel registerModel)
+        {
+            UserEntity userEntity = funDooDbContext.Users.FirstOrDefault(u => u.UserId == userId);
+            if (userEntity != null)
+            {
+                userEntity.FirstName = registerModel.FirstName;
+                userEntity.LastName = registerModel.LastName;
+                userEntity.Email = registerModel.Email;
+                userEntity.Password = EncodePassword(registerModel.Password);
+                userEntity.ChangedAt = DateTime.Now;
+
+                funDooDbContext.SaveChanges();
+                return userEntity;
+            }
+            else
+                throw new Exception("User not exist for requested user Id: " + userId);
+        }
+
+        //----------------------------------------------------------------
+
+
     }
 }

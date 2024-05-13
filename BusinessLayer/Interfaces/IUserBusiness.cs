@@ -19,5 +19,13 @@ namespace BusinessLayer.Interfaces
 
         public bool ResetPassword(string email, ResetPasswordModel resetPasswordModel);
 
+        //---------------------------------------------------
+        List<UserEntity> GetAllUsers();
+        UserEntity GetUserByUserId(int userId);
+        List<UserEntity> GetUsersByName(string userName);
+        UserEntity UpdateUser(int userId, RegisterModel registerModel);
+
+        //---------------------------------------------------
+
     }
 }

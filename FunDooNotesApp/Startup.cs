@@ -49,6 +49,9 @@ namespace FundooNotesApp
             services.AddTransient<IReviewRepo, ReviewRepo>();
             services.AddTransient<IReviewBusiness, ReviewsBusiness>();
 
+            services.AddTransient<INotesRepo, NotesRepo>();
+            services.AddTransient<INotesBusiness, NotesBusiness>();
+
             services.AddMassTransit(x =>
             {
                 x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(config =>
@@ -66,7 +69,7 @@ namespace FundooNotesApp
             services.AddSwaggerGen(
             option =>
             {
-                option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+                option.SwaggerDoc("v1", new OpenApiInfo { Title = "FunDooNotes API", Version = "v1" });
                 option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
