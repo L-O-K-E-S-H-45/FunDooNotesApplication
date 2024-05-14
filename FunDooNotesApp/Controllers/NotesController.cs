@@ -88,6 +88,54 @@ namespace FunDooNotesApplication.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPut("TogglePin")]
+        public IActionResult TogglePinNote(int notesId)
+        {
+            try
+            {
+                int userId = int.Parse(User.FindFirst("UserId").Value);
+                var response = notesBusiness.TogglePinNote(notesId);
+                return Ok(new ResponseModel<string> { IsSuccess = true, Message = "successfully toggled pin for note for user id: " + userId, Data = "Toggled pin note" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to toggle pin note", Data = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPut("ToggleArchive")]
+        public IActionResult ToggleArchiveNote(int notesId)
+        {
+            try
+            {
+                int userId = int.Parse(User.FindFirst("UserId").Value);
+                var response = notesBusiness.ToggleArchiveNote(notesId);
+                return Ok(new ResponseModel<string> { IsSuccess = true, Message = "successfully toggled archive for note for user id: " + userId, Data = "Toggled archive note" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to toggle archive note", Data = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPut("ToggleTrash")]
+        public IActionResult ToggleTrashNote(int notesId)
+        {
+            try
+            {
+                int userId = int.Parse(User.FindFirst("UserId").Value);
+                var response = notesBusiness.ToogleTrashNote(notesId);
+                return Ok(new ResponseModel<string> { IsSuccess = true, Message = "successfully toggled trash for note for user id: " + userId, Data = "Toggled trash note" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to toggle trash note", Data = ex.Message });
+            }
+        }
+
 
     }
 }

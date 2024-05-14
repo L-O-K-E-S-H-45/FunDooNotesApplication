@@ -12,5 +12,9 @@ namespace BusinessLayer.Interfaces
         List<NotesEntity> GetAllNotes();
         List<NotesEntity> GetNotes(int UserId);
         NotesEntity UpdateNote(int UserId, int NotesId, NotesModel notesModel);
+        bool TogglePinNote(int NotesId);
+        bool ToggleArchiveNote(int NotesId);
+        bool ToogleTrashNote(int NotesId);
+
     }
 }

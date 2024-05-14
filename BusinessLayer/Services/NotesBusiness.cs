@@ -32,10 +32,26 @@ namespace BusinessLayer.Services
         {
             return notesRepo.GetNotes(UserId);
         }
-
+        
         public NotesEntity UpdateNote(int UserId, int NotesId, NotesModel notesModel)
         {
             return notesRepo.UpdateNote(UserId, NotesId, notesModel);
         }
+
+        public bool TogglePinNote(int NotesId)
+        {
+            return notesRepo.TogglePinNote(NotesId);
+        }
+
+        public bool ToggleArchiveNote(int NotesId)
+        {
+            return notesRepo.ToggleArchiveNote(NotesId);
+        }
+
+        public bool ToogleTrashNote(int NotesId)
+        {
+            return notesRepo.ToogleTrashNote(NotesId);
+        }
+
     }
 }
