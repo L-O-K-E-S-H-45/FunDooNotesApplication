@@ -58,12 +58,12 @@ namespace FunDooNotesApplication.Controllers
 
         [Authorize]
         [HttpGet("user")]
-        public IActionResult GetNotes()
+        public IActionResult GetNotesByUser()
         {
             try
             {
                 int userId = int.Parse(User.FindFirst("UserId").Value);
-                var response = notesBusiness.GetNotes(userId);
+                var response = notesBusiness.GetNotesByUser(userId);
                 return Ok(new ResponseModel<List<NotesEntity>> { IsSuccess = true, Message = "Notes successfully found for user id: " + userId, Data = response });
             }
             catch (Exception ex)
@@ -87,6 +87,87 @@ namespace FunDooNotesApplication.Controllers
                 return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to update note", Data = ex.Message });
             }
         }
+
+        [Authorize]
+        [HttpPut("TogglePin")]
+        public IActionResult TogglePinNote(int notesId)
+        {
+            try
+            {
+                int userId = int.Parse(User.FindFirst("UserId").Value);
+                var response = notesBusiness.TogglePinNote(userId, notesId);
+                return Ok(new ResponseModel<string> { IsSuccess = true, Message = "successfully toggled pin for note id: " + notesId, Data = "Toggled pin note" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to toggle pin note", Data = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPut("ToggleArchive")]
+        public IActionResult ToggleArchiveNote(int notesId)
+        {
+            try
+            {
+                int userId = int.Parse(User.FindFirst("UserId").Value);
+                var response = notesBusiness.ToggleArchiveNote(userId, notesId);
+                return Ok(new ResponseModel<string> { IsSuccess = true, Message = "successfully toggled archive for note id: " + notesId, Data = "Toggled archive note" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to toggle archive note", Data = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPut("ToggleTrash")]
+        public IActionResult ToggleTrashNote(int notesId)
+        {
+            try
+            {
+                int userId = int.Parse(User.FindFirst("UserId").Value);
+                var response = notesBusiness.ToogleTrashNote(userId, notesId);
+                return Ok(new ResponseModel<string> { IsSuccess = true, Message = "successfully toggled trash for note id: " + notesId, Data = "Toggled trash note" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to toggle trash note", Data = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPut("AddColor")]
+        public IActionResult AddBackgroundColorToNote(int notesId, string colorName)
+        {
+            try
+            {
+                int userId = int.Parse(User.FindFirst("UserId").Value);
+                var response = notesBusiness.AddBackgroundColorToNote(userId, notesId, colorName);
+                return Ok(new ResponseModel<string> { IsSuccess = true, Message = "successfully added color to note id: " + notesId, Data = "Added color is: " + response });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to add color to note", Data = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPut("AddReminder")]
+        public IActionResult AddReminderToNote(int notesId, DateTime Reminder)
+        {
+            try
+            {
+                int userId = int.Parse(User.FindFirst("UserId").Value);
+                var response = notesBusiness.AddReminderToNote(userId, notesId, Reminder);
+                return Ok(new ResponseModel<string> { IsSuccess = true, Message = "successfully added reminder to note id: " + notesId, Data = "Added reminder at: " + response });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to add reminder to note", Data = ex.Message });
+            }
+        }
+
 
 
     }

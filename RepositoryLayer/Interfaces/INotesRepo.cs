@@ -11,8 +11,17 @@ namespace RepositoryLayer.Interfaces
 
         NotesEntity CreateNote(int UserId, NotesModel notesModel);
         List<NotesEntity> GetAllNotes();
-        List<NotesEntity> GetNotes(int UserId);
+        List<NotesEntity> GetNotesByUser(int UserId);
         NotesEntity UpdateNote(int UserId,int NotesId, NotesModel notesModel);
+
+        bool TogglePinNote(int UserId, int NotesId);
+        bool ToggleArchiveNote(int UserId, int NotesId);
+        bool ToogleTrashNote(int UserId, int NotesId);
+
+        string AddBackgroundColorToNote(int UserId, int NotesId, string InputColor);
+        DateTime AddReminderToNote(int UserId, int NotesId, DateTime Reminder);
+
+
 
     }
 }

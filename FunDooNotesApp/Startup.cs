@@ -52,6 +52,9 @@ namespace FundooNotesApp
             services.AddTransient<INotesRepo, NotesRepo>();
             services.AddTransient<INotesBusiness, NotesBusiness>();
 
+            services.AddTransient<ILabelRepo, LabelRepo>();
+            services.AddTransient<ILabelBusiness, LabelBusiness>();
+
             services.AddMassTransit(x =>
             {
                 x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(config =>
