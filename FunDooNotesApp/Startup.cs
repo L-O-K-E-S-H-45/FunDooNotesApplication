@@ -55,6 +55,9 @@ namespace FundooNotesApp
             services.AddTransient<ILabelRepo, LabelRepo>();
             services.AddTransient<ILabelBusiness, LabelBusiness>();
 
+            services.AddTransient<ICollaboratorRepo, CollaboratorRepo>();
+            services.AddTransient<ICollaboratorBusiness,  CollaboratorBusiness>();
+
             services.AddMassTransit(x =>
             {
                 x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(config =>
@@ -117,6 +120,9 @@ namespace FundooNotesApp
                     IssuerSigningKey = new SymmetricSecurityKey(Key)
                 };
             });
+
+            
+            services.AddStackExchangeRedisCache(options => { options.Configuration = Configuration["RedisCacheUrl"]; });
 
             // For Global Excption handling
             //services.AddTransient<GlobalExceptionHandlingMiddleware>();

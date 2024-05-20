@@ -30,14 +30,23 @@ namespace BusinessLayer.Services
             return labelRepo.GetNotesByLabelName((int)UserId, LabelName);
         }
 
-        public string RenameLabel(int UserId, int NotesId, string OldLabelName, string NewLabelName)
+        public string RenameLabel(int UserId, string OldLabelName, string NewLabelName)
         {
-            return labelRepo.RenameLabel(UserId, NotesId, OldLabelName, NewLabelName);
+            return labelRepo.RenameLabel(UserId, OldLabelName, NewLabelName);
         }
         public string DeleteLabel(int UserId, int NotesId, string LabelName)
         {
             return labelRepo.DeleteLabel(UserId, NotesId, LabelName);
         }
 
+        public object GetNotesWithLabels()
+        {
+            return labelRepo.GetNotesWithLabels();
+        }
+
+        public object GetUsersWithNotesAndNoteLabels()
+        {
+            return labelRepo.GetUsersWithNotesAndNoteLabels();
+        }
     }
 }

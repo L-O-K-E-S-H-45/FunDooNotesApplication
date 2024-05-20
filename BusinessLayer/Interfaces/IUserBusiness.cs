@@ -27,5 +27,7 @@ namespace BusinessLayer.Interfaces
 
         //---------------------------------------------------
 
+        public object UpdateUserByEmail(string email, RegisterModel registerModel);
+
     }
 }

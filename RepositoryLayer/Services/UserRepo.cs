@@ -116,8 +116,8 @@ namespace RepositoryLayer.Services
 
         public string UserLogin(LoginModel model)
         {
-            var user = funDooDbContext.Users.FirstOrDefault(user => user.Email == model.Email
-                                            && user.Password == EncodePassword(model.Password));
+            //var user = funDooDbContext.Users.FirstOrDefault(user => user.Email == model.Email && user.Password == EncodePassword(model.Password));
+            var user = (from u in funDooDbContext.Users where u.Email == model.Email && u.Password == EncodePassword(model.Password) select u).FirstOrDefault();
             if (user != null)
             {
                 var token = GenerateToken(user.Email, user.UserId);
@@ -173,13 +173,10 @@ namespace RepositoryLayer.Services
             }
             else
                 throw new Exception("User Not Exist for requested email!!!");
-
         }
 
         public bool ResetPassword(string email, ResetPasswordModel resetPasswordModel)
         {
-            //var user = funDooDbContext.Users.FirstOrDefault(user => user.Email == email);
-
             UserEntity user = GetUserByEmail(email);
             if (user != null)
             {
@@ -197,6 +194,7 @@ namespace RepositoryLayer.Services
         public List<UserEntity> GetAllUsers()
         {
             List<UserEntity> users = funDooDbContext.Users.ToList();
+            //var users = (from u in funDooDbContext.Users select u).ToList();
             
                 return users.Any() ? users : throw new Exception("Users list is empty");
         }
@@ -204,6 +202,7 @@ namespace RepositoryLayer.Services
         public UserEntity GetUserByUserId(int userId)
         {
             var userEntity = funDooDbContext.Users.FirstOrDefault(user => user.UserId == userId);
+            //var userEntity = (from u in funDooDbContext.Users where u.UserId == userId select u).FirstOrDefault();
 
             return (userEntity != null) ? userEntity : throw new Exception("User not found for requested Id: "+ userId);
         }
@@ -211,6 +210,7 @@ namespace RepositoryLayer.Services
         public List<UserEntity> GetUsersByName(string userName)
         {
             var users = funDooDbContext.Users.ToList().FindAll(user => user.FirstName == userName);
+            //var users = (from u in funDooDbContext.Users where u.FirstName == userName select u).ToList();
 
             return (users.Any()) ? users : throw new Exception("Users not found for requested userName: " + userName);
         }
@@ -235,6 +235,43 @@ namespace RepositoryLayer.Services
 
         //----------------------------------------------------------------
 
+        public object UpdateUserByEmail(string email, RegisterModel registerModel)
+        {
+            var user = (from u in funDooDbContext.Users where u.Email == email select u).FirstOrDefault();
+            if (user != null)
+            {
+                user.FirstName = registerModel.FirstName;
+                user.LastName = registerModel.LastName;
+                user.Password = EncodePassword(registerModel.Password);
+                user.ChangedAt = DateTime.Now;
+
+                funDooDbContext.SaveChanges();
+
+                Dictionary<string, UserEntity> resultant_user = new Dictionary<string, UserEntity>();
+                resultant_user.Add("Updated user: ", user);
+
+                return resultant_user;
+            }
+            else
+            {
+                UserEntity userEntity = new UserEntity()
+                {
+                    FirstName = registerModel.FirstName,
+                    LastName = registerModel.LastName,
+                    Email = email,
+                    Password = EncodePassword(registerModel.Password),
+                    CreatedAt = DateTime.Now,
+                    ChangedAt = DateTime.Now
+                };
+                funDooDbContext.Users.Add(userEntity);
+                funDooDbContext.SaveChanges();
+
+                return new Dictionary<string, UserEntity>
+                {
+                    { "Created user: ", userEntity }
+                };
+            }
+        }
 
     }
 }

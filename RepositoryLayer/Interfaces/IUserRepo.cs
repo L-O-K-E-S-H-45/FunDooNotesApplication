@@ -27,5 +27,7 @@ namespace RepositoryLayer.Interfaces
 
         //---------------------------------------------------
 
+        public object UpdateUserByEmail(string email, RegisterModel registerModel);
+
     }
 }

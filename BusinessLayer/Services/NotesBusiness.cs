@@ -1,4 +1,6 @@
 ﻿using BusinessLayer.Interfaces;
+using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Http;
 using ModelLayer.Models;
 using RepositoryLayer.Entities;
 using RepositoryLayer.Interfaces;
@@ -61,6 +63,35 @@ namespace BusinessLayer.Services
         public DateTime AddReminderToNote(int UserId, int NotesId, DateTime Reminder)
         {
             return notesRepo.AddReminderToNote(UserId, NotesId, Reminder);
+        }
+        public string AddImageToNote(string FilePath, int NotesId, int UserId)
+        {
+            return notesRepo.AddImageToNote(FilePath, NotesId, UserId);
+        }
+        public ImageUploadResult UploadImage(IFormFile ImagePath, int NotesId, int UserId)
+        {
+            return notesRepo.UploadImage(ImagePath, NotesId, UserId);
+        }
+
+
+        public List<UserEntity> GetUsersByNoteTitle(string NotesTitle)
+        {
+            return notesRepo.GetUsersByNoteTitle(NotesTitle);
+        }
+
+        public object GetUsersWithNotes()
+        {
+            return notesRepo.GetUsersWithNotes();
+        }
+
+        //
+        public object GetUsersWithNotesCount()
+        {
+            return notesRepo.GetUsersWithNotesCount();
+        }
+        public object GetNotesByTitleAndDescription(string Title, string Description)
+        {
+            return notesRepo.GetNotesByTitleAndDescription(Title, Description);
         }
     }
 }

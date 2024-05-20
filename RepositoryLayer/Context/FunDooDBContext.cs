@@ -19,7 +19,7 @@ namespace RepositoryLayer.Context
 
         //public DbSet<LabelsLogEntity> LabelsLog { get; set; }
 
-
+        public DbSet<CollaboratorEntity> Collaborators { get; set; }
 
     }
 }

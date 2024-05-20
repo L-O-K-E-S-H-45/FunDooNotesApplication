@@ -1,4 +1,6 @@
-﻿using ModelLayer.Models;
+﻿using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Http;
+using ModelLayer.Models;
 using RepositoryLayer.Entities;
 using System;
 using System.Collections.Generic;
@@ -20,6 +22,17 @@ namespace RepositoryLayer.Interfaces
 
         string AddBackgroundColorToNote(int UserId, int NotesId, string InputColor);
         DateTime AddReminderToNote(int UserId, int NotesId, DateTime Reminder);
+        string AddImageToNote(string FilePath, int NotesId, int UserId);
+        ImageUploadResult UploadImage(IFormFile ImagePath, int NotesId, int UserId);
+
+        List<UserEntity> GetUsersByNoteTitle(string NotesTitle);
+        object GetUsersWithNotes();
+
+        // 
+        public object GetUsersWithNotesCount();
+
+        public object GetNotesByTitleAndDescription(string Title, string Description);
+
 
 
 

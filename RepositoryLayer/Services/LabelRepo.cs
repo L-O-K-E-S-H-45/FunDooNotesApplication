@@ -19,12 +19,12 @@ namespace RepositoryLayer.Services
         public NotesEntity GetNoteByIds(int UserId, int NotesId)
         {
             return funDooDBContext.Notes.FirstOrDefault(notes => notes.NotesId == NotesId && notes.UserId == UserId);
+            //return  (from n in funDooDBContext.Notes where n.UserId == UserId && n.NotesId == NotesId select n).FirstOrDefault();
         }
 
         public string AddLabelToNote(int UserId, int NotesId, string LabelName)
         {
             var note = GetNoteByIds(UserId, NotesId);
-            var user = funDooDBContext.Users.FirstOrDefault(u => u.UserId == UserId);
             if (note != null)
             {
                 var label = funDooDBContext.Labels.Any(l => l.LabelName == LabelName && l.NotesId == NotesId && l.UserId == UserId);
@@ -35,8 +35,9 @@ namespace RepositoryLayer.Services
                     labelEntity.NotesId = NotesId;
                     labelEntity.UserId = UserId;
                     Console.WriteLine(note.Title + " -------------------------");
-                    labelEntity.LabelNote = note;
-                    labelEntity.LabelUser = user;
+                    // No need to add note & user to fetch notes & user entities
+                    //labelEntity.LabelNote = note;
+                    //labelEntity.LabelUser = user;
 
                     funDooDBContext.Labels.Add(labelEntity);
                     funDooDBContext.SaveChanges();
@@ -61,34 +62,52 @@ namespace RepositoryLayer.Services
 
         public List<NotesEntity> GetNotesByLabelName(int UserId, string LabelName)
         {
-            var notes = funDooDBContext.Labels.Where(l => l.UserId == UserId && l.LabelName == LabelName)
-                        .Select(l => l.LabelNote).ToList();
+            //var notes = funDooDBContext.Labels.Where(l => l.UserId == UserId && l.LabelName == LabelName)
+            //            .Select(l => l.LabelNote).ToList();
+
+            var notes = (from l in funDooDBContext.Labels where l.UserId == UserId && l.LabelName == LabelName
+                         orderby l.NotesId
+                         select l.LabelNote).ToList();
+
             Console.WriteLine(notes.Count);
             
             if (notes.Any()) return notes;
             else throw new Exception("Notes not found for requested label name: " + LabelName);
         }
 
-        public string RenameLabel(int UserId, int NotesId, string OldLabelName, string NewLabelName)
+        private LabelEntity GetLabel(string LabelName, int NotesId, int UserId)
         {
-            var label = funDooDBContext.Labels.FirstOrDefault(l => l.UserId == UserId && l.NotesId == NotesId && l.LabelName == OldLabelName);
-            if (label != null)
+            return (from l in funDooDBContext.Labels where l.LabelName == LabelName && l.NotesId == NotesId && l.UserId == UserId select l).FirstOrDefault();
+        }
+
+        public string RenameLabel(int UserId, string OldLabelName, string NewLabelName)
+        {
+            var labels = (from l in funDooDBContext.Labels where l.LabelName ==  OldLabelName && l.UserId == UserId select l).ToList();
+            if (labels.Any())
             {
-                var label2 = funDooDBContext.Labels.FirstOrDefault(l => l.UserId == UserId && l.NotesId == NotesId && l.LabelName == NewLabelName);
-                if (label2 == null)
+                foreach (LabelEntity l in labels)
                 {
-                    label.LabelName = NewLabelName;
+                    if (GetLabel(NewLabelName, l.NotesId, UserId) == null)
+                    {
+                        Console.WriteLine("Rename: " + l.LabelId + " " + l.NotesId + " " + UserId);
+                        l.LabelName = NewLabelName;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Delete: " + l.LabelId + " " + l.NotesId + " " + UserId);
+                        funDooDBContext.Labels.Remove(l);
+                    }
                     funDooDBContext.SaveChanges();
-                    return NewLabelName;
                 }
-                else throw new Exception("Label already exist with new label name: " + NewLabelName);
+
+                return NewLabelName;
             }
             else throw new Exception("Label not found for requested label name: " + OldLabelName);
         }
 
         public string DeleteLabel(int UserId, int NotesId, string LabelName)
         {
-            var label = funDooDBContext.Labels.FirstOrDefault(l => l.UserId == UserId && l.NotesId == NotesId && l.LabelName == LabelName);
+            var label = GetLabel(LabelName, NotesId, UserId);
             if (label != null)
             {
                 funDooDBContext.Remove(label);
@@ -98,5 +117,43 @@ namespace RepositoryLayer.Services
             else throw new Exception("Label not found for requested label name: " + LabelName);
         }
 
+        public object GetNotesWithLabels()
+        {
+            var notes = from NotesEntity n in funDooDBContext.Notes
+                        join LabelEntity l in funDooDBContext.Labels on n.NotesId equals l.NotesId
+                        orderby n.NotesId, l.LabelId
+                        select new
+                        {
+                            n.NotesId,
+                            n.Title,
+                            n.Description,
+                            n.Reminder,
+                            l.LabelId,
+                            l.LabelName
+                        };
+            return notes.Any() ? notes : throw new Exception("Labels not added for notes");
+        }
+
+        public object GetUsersWithNotesAndNoteLabels()
+        {
+            var users = from UserEntity u in funDooDBContext.Users
+                        join NotesEntity n in funDooDBContext.Notes on u.UserId equals n.UserId
+                        join LabelEntity l in funDooDBContext.Labels on n.NotesId equals l.NotesId
+                        orderby u.UserId, n.NotesId, l.LabelName
+                        select new
+                        {
+                           u.UserId,
+                           u.FirstName,
+                           u.LastName,
+                           u.Email,
+                           n.NotesId,
+                           n.Title,
+                           n.Description,
+                           n.Reminder,
+                           l.LabelId,
+                           l.LabelName
+                        };
+            return users.Any() ? users : throw new Exception("Notes are not added for users");
+        }
     }
 }
