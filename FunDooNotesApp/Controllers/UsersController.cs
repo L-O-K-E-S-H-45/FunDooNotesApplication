@@ -4,6 +4,7 @@ using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using ModelLayer.Models;
 using RepositoryLayer.Entities;
 using RepositoryLayer.Migrations;
@@ -21,10 +22,13 @@ namespace FunDooNotesApplication.Controllers
 
         private readonly IUserBusiness  userBusiness;
         private readonly IBus bus;
-        public UsersController(IUserBusiness userBusiness, IBus bus)
+        private readonly ILogger<UsersController> _logger;
+
+        public UsersController(IUserBusiness userBusiness, IBus bus, ILogger<UsersController> logger)
         {
             this.userBusiness = userBusiness;
             this.bus = bus;
+            this._logger = logger;
         }
 
         [HttpPost("register")]
@@ -52,6 +56,7 @@ namespace FunDooNotesApplication.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.ToString());
                 return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "User Registration failed!!!", Data = ex.Message });
             }
 
@@ -207,7 +212,19 @@ namespace FunDooNotesApplication.Controllers
 
         // ------------------------------------------------------------------
 
-
+        [HttpPut("update/{email}")]
+        public IActionResult UpdateUserByEmail(string email, RegisterModel registerModel)
+        {
+            try
+            {
+                var response = userBusiness.UpdateUserByEmail(email, registerModel);
+                return Ok(new ResponseModel<object> { IsSuccess = true, Message = "User updated successfully", Data = response });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to update user", Data = ex.Message });
+            }
+        }
 
 
     }

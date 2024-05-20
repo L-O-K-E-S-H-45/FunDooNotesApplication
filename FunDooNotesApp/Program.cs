@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NLog.Web;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,6 +16,10 @@ namespace FundooNotesApp
         public static void Main(string[] args)
         {
             Console.WriteLine("Hello World!!!");
+
+            var logPath = Path.Combine(Directory.GetCurrentDirectory(), "Logs");
+            NLog.GlobalDiagnosticsContext.Set("LogDirectory", logPath);
+
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -22,11 +28,16 @@ namespace FundooNotesApp
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                }).ConfigureLogging( otp =>
+                {
+                    otp.ClearProviders();
+                    otp.SetMinimumLevel(LogLevel.Trace);
+                }).UseNLog();
     }
 }
 
 /*
+ * For Logger level -> Trace, Debug, Info, Warning, Error, Fatal
  * System.AggregateException: 'Some services are not able to be constructed (Error while validating the service descriptor 'ServiceType: ExcepionHandling.GlobalExceptionHandlingMiddleware Lifetime: Transient ImplementationType: ExcepionHandling.GlobalExceptionHandlingMiddleware': Unable to resolve service for type 'Microsoft.AspNetCore.Http.RequestDelegate' while attempting to activate 'ExcepionHandling.GlobalExceptionHandlingMiddleware'.)'
 
  * */

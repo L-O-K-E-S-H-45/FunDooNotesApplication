@@ -71,13 +71,13 @@ namespace FunDooNotesApplication.Controllers
 
         [Authorize]
         [HttpPatch("RenameLabel")]
-        public IActionResult RenameLabel(int NotesId, string OldLabelName, string NewLabelName)
+        public IActionResult RenameLabel(string OldLabelName, string NewLabelName)
         {
             try
             {
                 int userId = int.Parse(User.FindFirstValue("UserId"));
-                var response = labelBusiness.RenameLabel(userId, NotesId, OldLabelName, NewLabelName);
-                return Ok(new ResponseModel<string> { IsSuccess = true, Message = "Label rename successfully for notes id: " + NotesId, Data = OldLabelName + " renamed to " + response });
+                var response = labelBusiness.RenameLabel(userId, OldLabelName, NewLabelName);
+                return Ok(new ResponseModel<string> { IsSuccess = true, Message = "Label rename successfull for user id: " + userId, Data = OldLabelName + " renamed to " + response });
             }
             catch (Exception ex)
             {
@@ -98,6 +98,34 @@ namespace FunDooNotesApplication.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to delete Label", Data = ex.Message });
+            }
+        }
+
+        [HttpGet("Notes")]
+        public IActionResult GetNotesWithLabels()
+        {
+            try
+            {
+                var response = labelBusiness.GetNotesWithLabels();
+                return Ok(new ResponseModel<object> { IsSuccess = true, Message = "Successfully found Notes with labels", Data = response  });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to find Notes with labels", Data = ex.Message });
+            }
+        }
+
+        [HttpGet("Notes/users")]
+        public IActionResult GetUsersWithNotesAndNoteLabels()
+        {
+            try
+            {
+                var response = labelBusiness.GetUsersWithNotesAndNoteLabels();
+                return Ok(new ResponseModel<object> { IsSuccess = true, Message = "Successfully found users with Notes and Notelabels", Data = response });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to find users with Notes and Notelabels", Data = ex.Message });
             }
         }
 

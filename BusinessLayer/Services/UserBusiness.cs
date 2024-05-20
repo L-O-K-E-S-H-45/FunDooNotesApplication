@@ -64,5 +64,11 @@ namespace BusinessLayer.Services
             return userRepo.UpdateUser(userId, registerModel);
         }
         //---------------------------------------------------
+
+        public object UpdateUserByEmail(string email, RegisterModel registerModel)
+        {
+            return userRepo.UpdateUserByEmail(email, registerModel);
+        }
+
     }
 }

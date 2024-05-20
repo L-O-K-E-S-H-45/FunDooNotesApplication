@@ -1,12 +1,19 @@
 ﻿using BusinessLayer.Interfaces;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using ModelLayer.Models;
+using Newtonsoft.Json;
+using RepositoryLayer.Context;
 using RepositoryLayer.Entities;
 using RepositoryLayer.Migrations;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace FunDooNotesApplication.Controllers
 {
@@ -16,10 +23,14 @@ namespace FunDooNotesApplication.Controllers
     {
 
         private readonly INotesBusiness notesBusiness;
+        private readonly IDistributedCache distributedCache;
+        private readonly FunDooDBContext funDooDBContext;
 
-        public NotesController(INotesBusiness notesBusiness)
+        public NotesController(INotesBusiness notesBusiness, IDistributedCache distributedCache, FunDooDBContext funDooDBContext)
         {
             this.notesBusiness = notesBusiness;
+            this.distributedCache = distributedCache;
+            this.funDooDBContext = funDooDBContext;
         }
 
         [Authorize]
@@ -168,6 +179,120 @@ namespace FunDooNotesApplication.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPut("AddImage")]
+        public IActionResult AddImageToNote(string FilePath, int NotesId)
+        {
+            try
+            {
+                int userId = int.Parse(User.FindFirst("UserId").Value);
+                var response = notesBusiness.AddImageToNote(FilePath, NotesId, userId);
+                return Ok(new ResponseModel<string> { IsSuccess = true, Message = "successfully added image to note id: " + NotesId, Data = "Added Image is: " + response });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to add image to note", Data = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPut("UploadImage")]
+        public IActionResult UploadImage(IFormFile ImagePath, int NotesId)
+        {
+            try
+            {
+                int userId = int.Parse(User.FindFirst("UserId").Value);
+                var response = notesBusiness.UploadImage(ImagePath, NotesId, userId);
+                return Ok(new ResponseModel<string> { IsSuccess = true, Message = "successfully added image to note id: " + NotesId, Data = "Added Image is: " + response });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to add image to note", Data = ex.Message });
+            }
+        }
+
+
+        [HttpGet("{NotesTitle}/users")]
+        public IActionResult GetUsersByNoteTitle(string NotesTitle)
+        {
+            try
+            {
+                var response = notesBusiness.GetUsersByNoteTitle(NotesTitle);
+                return Ok(new ResponseModel<List<UserEntity>> { IsSuccess = true, Message = "successfully found users", Data = response });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to find users", Data = ex.Message });
+            }
+        }
+
+        [HttpGet("users")]
+        public IActionResult GetUsersWithNotes()
+        {
+            try
+            {
+                var response = notesBusiness.GetUsersWithNotes();
+                return Ok(new ResponseModel<object> { IsSuccess = true, Message = "successfully found users with notes", Data = response });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to find users with notes", Data = ex.Message });
+            }
+        }
+
+        [HttpGet("Redis")]
+        public async Task<IActionResult> GetAllNotesUsingRedisCache()
+        {
+            var cacheKey = "NotesList";
+            string SerializedNotesLst;
+            var NotesList = new List<NotesEntity>();
+            var RedisNotesList = await distributedCache.GetAsync(cacheKey);
+            if (RedisNotesList != null)
+            {
+                SerializedNotesLst = Encoding.UTF8.GetString(RedisNotesList);
+                NotesList = JsonConvert.DeserializeObject<List<NotesEntity>>(SerializedNotesLst);
+            }
+            else
+            {
+                NotesList = funDooDBContext.Notes.ToList();
+                SerializedNotesLst = JsonConvert.SerializeObject(NotesList);
+                RedisNotesList = Encoding.UTF8.GetBytes(SerializedNotesLst);
+                var options = new DistributedCacheEntryOptions()
+                    .SetAbsoluteExpiration(DateTime.Now.AddMinutes(20))
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(5));
+                await distributedCache.SetAsync(cacheKey,RedisNotesList, options);
+            }
+            return Ok(NotesList);
+        }
+
+        // 
+        [HttpGet("NotesCount")]
+        public IActionResult GetUsersWithNotesCount()
+        {
+            try
+            {
+                var response = notesBusiness.GetUsersWithNotesCount();
+                return Ok(new ResponseModel<object> { IsSuccess = true, Message = "successfully found notes count for users", Data = response });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to find notes count for users", Data = ex.Message });
+            }
+        }
+
+        [HttpGet("NotesWithTitleAndDesc")]
+        public IActionResult GetNotesByTitleAndDescription(string Title, string Description)
+        {
+            try
+            {
+                var response = notesBusiness.GetNotesByTitleAndDescription(Title, Description);
+                return Ok(new ResponseModel<object> { IsSuccess = true, Message = "successfully found notes", Data = response });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Failed to find notes", Data = ex.Message });
+            }
+        }
 
 
     }
