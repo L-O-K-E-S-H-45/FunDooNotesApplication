@@ -24,31 +24,38 @@ namespace RepositoryLayer.Services
 
         public string AddLabelToNote(int UserId, int NotesId, string LabelName)
         {
-            var note = GetNoteByIds(UserId, NotesId);
-            if (note != null)
+            try
             {
-                var label = funDooDBContext.Labels.Any(l => l.LabelName == LabelName && l.NotesId == NotesId && l.UserId == UserId);
-                if (!label)
+                var note = GetNoteByIds(UserId, NotesId);
+                if (note != null)
                 {
-                    LabelEntity labelEntity = new LabelEntity();
-                    labelEntity.LabelName = LabelName;
-                    labelEntity.NotesId = NotesId;
-                    labelEntity.UserId = UserId;
-                    Console.WriteLine(note.Title + " -------------------------");
-                    // No need to add note & user to fetch notes & user entities
-                    //labelEntity.LabelNote = note;
-                    //labelEntity.LabelUser = user;
+                    var label = funDooDBContext.Labels.Any(l => l.LabelName == LabelName && l.NotesId == NotesId && l.UserId == UserId);
+                    if (!label)
+                    {
+                        LabelEntity labelEntity = new LabelEntity();
+                        labelEntity.LabelName = LabelName;
+                        labelEntity.NotesId = NotesId;
+                        labelEntity.UserId = UserId;
+                        //Console.WriteLine(note.Title + " -------------------------");
+                        // No need to add note & user to fetch notes & user entities
+                        //labelEntity.LabelNote = note;
+                        //labelEntity.LabelUser = user;
 
-                    funDooDBContext.Labels.Add(labelEntity);
-                    funDooDBContext.SaveChanges();
-                    Console.WriteLine(labelEntity.LabelNote.Title + " +++++++++++++");
-                    return LabelName;
+                        funDooDBContext.Labels.Add(labelEntity);
+                        funDooDBContext.SaveChanges();
+                        //Console.WriteLine(labelEntity.LabelNote.Title + " +++++++++++++");
+                        return LabelName;
+                    }
+                    else
+                        throw new Exception("label already exists for note id: " + NotesId);
                 }
                 else
-                    throw new Exception("label already exists for note id: " + NotesId);
+                    throw new Exception("Note not found for requested id: " + NotesId);
             }
-            else
-                throw new Exception("Note not found for requested id: " + NotesId);
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public List<LabelEntity> GetLabelsByUser(int UserId)
