@@ -203,7 +203,7 @@ namespace FunDooNotesApplication.Controllers
             {
                 int userId = int.Parse(User.FindFirst("UserId").Value);
                 var response = notesBusiness.UploadImage(ImagePath, NotesId, userId);
-                return Ok(new ResponseModel<string> { IsSuccess = true, Message = "successfully added image to note id: " + NotesId, Data = "Added Image is: " + response });
+                return Ok(new ResponseModel<object> { IsSuccess = true, Message = "successfully added image to note id: " + NotesId, Data = response });
             }
             catch (Exception ex)
             {
